@@ -1,0 +1,6 @@
+name "dlint"
+description "DMDFE-based D linter."
+authors "Vladimir Panteleev"
+copyright "Copyright © 2021, Vladimir Panteleev"
+license "BSL-1.0"
+dependency "dmd" version="~master"
