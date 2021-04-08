@@ -106,7 +106,6 @@ Tuple!(Module, "module_", Diagnostics, "diagnostics") parseModule(AST = ASTCodeg
 	const(char)[] code = null)
 {
 	import dmd.root.file : File, FileBuffer;
-	import dmd.root.filename : FileName;
 
 	import dmd.globals : Loc, global;
 	import dmd.parse : Parser;
@@ -118,8 +117,7 @@ Tuple!(Module, "module_", Diagnostics, "diagnostics") parseModule(AST = ASTCodeg
 	import std.typecons : tuple;
 
 	auto id = Identifier.idPool(fileName.baseName.stripExtension);
-	auto m = new Module(fileName, id, 0, 0);
-	m.docfile = FileName("/dev/null");
+	auto m = new Module(fileName, id, 1, 0);
 
 	if (code is null)
 		m.read(Loc.initial);
