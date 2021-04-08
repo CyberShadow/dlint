@@ -51,7 +51,11 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 			static if (is(typeof(d.visibility) : AST.Visibility))
 			{
 				// Should be documented, and traversed
-				debug(dlint) printf("%s %s %d\n", typeof(d).stringof.ptr, d.toChars(), d.visibility.kind);
+				debug(dlint) printf("# %s: %s %s %d\n",
+					d.loc.toChars(),
+					typeof(d).stringof.ptr,
+					d.toChars(),
+					d.visibility.kind);
 				if (d.visibility.kind != AST.Visibility.Kind.undefined &&
 					d.visibility.kind < AST.Visibility.Kind.public_)
 					return;
