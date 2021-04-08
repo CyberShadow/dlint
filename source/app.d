@@ -35,7 +35,7 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 					d.visibility.kind < AST.Visibility.Kind.public_)
 					return;
 
-				visitDeclaration(d);
+				visitDeclaration(typeof(d).stringof.ptr, d);
 			}
 			else
 			{
@@ -44,14 +44,14 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 			super.visit(d);
 		}
 
-	void visitDeclaration(Dsymbol d)
+	void visitDeclaration(const(char)* type, Dsymbol d)
 	{
 		if (d.comment)
 			return;
 
-		printf("%s: Undocumented public declaration: %s %s\n",
+		printf("%s: Undocumented public declaration: %s `%s`\n",
 			d.loc.toChars(),
-			typeof(d).stringof.ptr, d.toChars());
+			type, d.toChars());
 	}
 }
 
