@@ -94,11 +94,23 @@ extern(C++) final class UndocumentedLinter : SemanticTimeTransitiveVisitor
 					visitDeclaration(typeof(d).stringof.ptr, d);
 				}
 
-				auto lastVisibility = currentVisibility;
-				currentVisibility = visibility;
-				scope(success) currentVisibility = lastVisibility;
+				static if (is(typeof(d) == AST.AliasDeclaration))
+				{
+					// Should be documented, but must not be traversed
+					debug(dlint) printf("%*s#(not traversing!)\n",
+						depth, "".ptr,
+						d.loc.toChars(),
+						typeof(d).stringof.ptr,
+						d.toChars());
+				}
+				else
+				{
+					auto lastVisibility = currentVisibility;
+					currentVisibility = visibility;
+					scope(success) currentVisibility = lastVisibility;
 
-				super.visit(d);
+					super.visit(d);
+				}
 			}
 			else
 			{
