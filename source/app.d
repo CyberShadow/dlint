@@ -25,6 +25,10 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 		{
 			debug(dlint) { depth++; scope(success) depth--; }
 
+			static if (is(typeof(d.storage_class)))
+				if (d.storage_class & AST.STC.deprecated_)
+					return;
+
 			static if (is(typeof(d) == AST.Import)
 				|| is(typeof(d) == AST.CompoundStatement)
 				|| is(typeof(d) == AST.FuncLiteralDeclaration))
