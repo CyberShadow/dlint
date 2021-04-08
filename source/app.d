@@ -70,13 +70,21 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 					if (visibility < AST.Visibility.Kind.public_)
 						return;
 
+					// Some declarations need to be public even though
+					// they should not be (e.g. if they are exposed
+					// through public aliases).  Apply the same
+					// convention as seen in many other languages
+					// without visibility as a language feature, and
+					// treat variable starting with "_" as private.
+					// (This will also include compiler-generated
+					// symbols, such as __xpostblit).
+					if (d.ident && d.ident.toString().startsWith("_"))
+						return;
+
 					// Skip compiler-generated declarations
 					static if (is(typeof(d.generated) : bool))
 						if (d.generated)
 							return;
-					// Needed e.g. for __xpostblit
-					if (d.ident && d.ident.toString().startsWith("__"))
-						return;
 					if (!d.loc.isValid())
 						return;
 
