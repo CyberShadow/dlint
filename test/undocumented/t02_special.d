@@ -33,3 +33,14 @@ class Good2 : Good1
 	/// documented!
 	void good1(int) {}
 }
+
+// --- nested classes
+
+/// documented!
+class Good3
+{
+	/// also documented!
+	class Good4
+	{
+	}
+}

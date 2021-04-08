@@ -29,7 +29,8 @@ extern(C++) final class UndocumentedLinter : SemanticTimeTransitiveVisitor
 
 			static if (is(typeof(d) == AST.Import)
 				|| is(typeof(d) == AST.CompoundStatement)
-				|| is(typeof(d) == AST.FuncLiteralDeclaration))
+				|| is(typeof(d) == AST.FuncLiteralDeclaration)
+				|| is(typeof(d) == AST.ThisDeclaration))
 			{
 				// Does not need to be documented or traversed
 				debug(dlint) printf("%*s# %s: Skipping %s %s\n",
