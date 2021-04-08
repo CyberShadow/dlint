@@ -9,3 +9,8 @@ struct bad01
 {
 	WithCopyCtor c;
 }
+
+// lambdas in function declarations
+
+/// documented!
+void fun(alias pred=(a, b) => a is b)() {}

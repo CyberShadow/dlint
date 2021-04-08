@@ -23,12 +23,9 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 		{
 			debug(dlint) { depth++; scope(success) depth--; }
 
-			// We do this because e.g. Declaration and
-			// AggregateDeclaration are unrelated types which both
-			// have a `visibility` field (and their common ancestor
-			// does not have a `visibility` field).
 			static if (is(typeof(d) == AST.Import)
-				|| is(typeof(d) == AST.CompoundStatement))
+				|| is(typeof(d) == AST.CompoundStatement)
+				|| is(typeof(d) == AST.FuncLiteralDeclaration))
 			{
 				// Does not need to be documented or traversed
 				debug(dlint) printf("%*s# %s: Skipping %s %s\n",
@@ -38,6 +35,10 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 					d.toChars());
 			}
 			else
+			// We do this because e.g. Declaration and
+			// AggregateDeclaration are unrelated types which both
+			// have a `visibility` field (and their common ancestor
+			// does not have a `visibility` field).
 			static if (is(typeof(d.visibility) : AST.Visibility))
 			{
 				// Should be documented, and traversed
