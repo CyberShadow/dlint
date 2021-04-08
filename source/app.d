@@ -161,10 +161,7 @@ void main(string[] args)
 			continue;
 		}
 
-		auto fn = arg;
-		auto input = readText(fn);
-
-		auto t = parseModule(fn, input);
+		auto t = parseModule(arg);
 
 		assert(!t.diagnostics.hasErrors);
 		assert(!t.diagnostics.hasWarnings);
