@@ -57,6 +57,7 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 
 import dmd.root.filename;
 import dmd.dmodule;
+import std.algorithm.searching;
 import std.typecons;
 
 Tuple!(Module, "module_", Diagnostics, "diagnostics") parseModule(AST = ASTCodegen)(
@@ -109,9 +110,19 @@ void main(string[] args)
 
     import std.file;
 
-    foreach (fn; args[1..$])
+    foreach (arg; args[1..$])
     {
-        auto input = readText(fn);
+		if (arg.startsWith("-"))
+		{
+			if (arg.startsWith("-I"))
+				addImport(arg[2 .. $]);
+			else
+				throw new Exception("Unknown switch: " ~ arg);
+			continue;
+		}
+
+		auto fn = arg;
+		auto input = readText(fn);
 
 		auto t = parseModule(fn, input);
 
