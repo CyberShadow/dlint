@@ -2,9 +2,9 @@ DLINT=../dlint
 
 SOURCES=$(shell find ../source -name '*.d')
 TESTS=$(shell find . -name '*.d')
-TESTS_OK=$(addsuffix .ok, $(TESTS))
+TESTS_OUT=$(addsuffix .out, $(TESTS))
 
-all : $(TESTS_OK)
+all : $(TESTS_OUT)
 
 $(DLINT) : $(SOURCES)
 	env -C .. dub
@@ -12,11 +12,6 @@ $(DLINT) : $(SOURCES)
 %.out : % $(DLINT)
 	$(DLINT) $< &> $@
 
-%.ok : %.out %.exp
-	diff -u $< $*.exp
-	touch $@
-
-.SECONDARY: $(addsuffix .out, $(TESTS))
 .PHONY: all
 .SUFFIXES:
 .DELETE_ON_ERROR:
