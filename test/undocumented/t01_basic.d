@@ -25,3 +25,8 @@ private struct good2
 public:
 	void good22() {}
 }
+
+void bad3()
+{
+	int good31;
+}

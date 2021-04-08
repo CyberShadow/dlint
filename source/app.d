@@ -28,7 +28,8 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 			// AggregateDeclaration are unrelated types which both
 			// have a `visibility` field (and their common ancestor
 			// does not have a `visibility` field).
-			static if (is(typeof(d) == AST.Import))
+			static if (is(typeof(d) == AST.Import)
+				|| is(typeof(d) == AST.CompoundStatement))
 			{
 				// Does not need to be documented or traversed
 				debug(dlint) printf("# %s: Skipping %s %s\n",
