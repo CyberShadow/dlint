@@ -102,8 +102,7 @@ import std.typecons : Tuple;
 import dmd.dmodule : Module;
 
 Tuple!(Module, "module_", Diagnostics, "diagnostics") parseModule(AST = ASTCodegen)(
-	const(char)[] fileName,
-	const(char)[] code = null)
+	const(char)[] fileName)
 {
 	import dmd.root.file : File, FileBuffer;
 
@@ -119,17 +118,7 @@ Tuple!(Module, "module_", Diagnostics, "diagnostics") parseModule(AST = ASTCodeg
 	auto id = Identifier.idPool(fileName.baseName.stripExtension);
 	auto m = new Module(fileName, id, 1, 0);
 
-	if (code is null)
-		m.read(Loc.initial);
-	else
-	{
-		File.ReadResult readResult = {
-			success: true,
-			buffer: FileBuffer(cast(ubyte[]) code.dup ~ '\0')
-		};
-
-		m.loadSourceBuffer(Loc.initial, readResult);
-	}
+	m.read(Loc.initial);
 
 	m.parseModule!AST();
 
@@ -150,6 +139,8 @@ void main(string[] args)
 
 	import std.file;
 
+	Module[] modules;
+
 	foreach (arg; args[1..$])
 	{
 		if (arg.startsWith("-"))
@@ -161,13 +152,24 @@ void main(string[] args)
 			continue;
 		}
 
+		debug(dlint) printf("# Loading %.*s\n",
+			cast(int)arg.length, arg.ptr);
+
 		auto t = parseModule(arg);
 
 		assert(!t.diagnostics.hasErrors);
 		assert(!t.diagnostics.hasWarnings);
 
-		t.module_.fullSemantic;
+		modules ~= t.module_;
+	}
+
+	foreach (m; modules)
+	{
+		debug(dlint) printf("# Processing %s\n",
+			m.srcfile.toChars());
+
+		m.fullSemantic;
 		auto linter = new Linter;
-		t.module_.accept(linter);
+		m.accept(linter);
 	}
 }
