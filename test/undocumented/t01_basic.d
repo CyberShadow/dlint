@@ -30,3 +30,11 @@ void bad3()
 {
 	int good31;
 }
+
+struct bad4(T)
+{
+	void bad41() {}
+private:
+	void good42() {}
+}
+

@@ -38,17 +38,6 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 					d.toChars());
 			}
 			else
-			static if (is(typeof(d) == AST.VisibilityDeclaration))
-			{
-				// Has visibility, but cannot be documented
-				debug(dlint) printf("# %s: Silently descending into %s %s\n",
-					d.loc.toChars(),
-					typeof(d).stringof.ptr,
-					d.toChars());
-
-				super.visit(d);
-			}
-			else
 			static if (is(typeof(d.visibility) : AST.Visibility))
 			{
 				// Should be documented, and traversed
@@ -61,7 +50,13 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 					d.visibility.kind < AST.Visibility.Kind.public_)
 					return;
 
-				visitDeclaration(typeof(d).stringof.ptr, d);
+				static if (is(typeof(d) == AST.VisibilityDeclaration))
+				{
+					// Has visibility, but cannot be documented
+					debug(dlint) printf("# (skipping)\n");
+				}
+				else
+					visitDeclaration(typeof(d).stringof.ptr, d);
 				super.visit(d);
 			}
 			else
