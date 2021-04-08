@@ -1,0 +1,2 @@
+undocumented/t06_eponymous.d(3,1): Undocumented public declaration: TemplateDeclaration `Bad1()`
+undocumented/t06_eponymous.d(11,7): Undocumented public declaration: VarDeclaration `bad11`

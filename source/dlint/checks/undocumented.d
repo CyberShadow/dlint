@@ -15,6 +15,7 @@ extern(C++) final class UndocumentedLinter : SemanticTimeTransitiveVisitor
 	alias AST = ASTCodegen;
 	debug(dlint) int depth;
 	AST.Visibility.Kind currentVisibility = AST.Visibility.Kind.public_;
+	bool inEponymous;
 
 	// We do this because the TransitiveVisitor does not forward
 	// visit(FooDeclaration) to visit(Declaration)
@@ -23,9 +24,30 @@ extern(C++) final class UndocumentedLinter : SemanticTimeTransitiveVisitor
 		{
 			debug(dlint) { depth++; scope(success) depth--; }
 
+			bool ignoreCurrent;
+			if (inEponymous)
+			{
+				inEponymous = false;
+				ignoreCurrent = true;
+			}
+
 			static if (is(typeof(d.storage_class)))
 				if (d.storage_class & AST.STC.deprecated_)
 					return;
+
+			static if (is(typeof(d) == AST.TemplateDeclaration))
+				if (d.onemember)
+				{
+					debug(dlint) printf("%*s# %s: Diving inside eponymous %s %s\n",
+						depth, "".ptr,
+						d.loc.toChars(),
+						typeof(d).stringof.ptr,
+						d.toChars());
+					visitDeclaration(typeof(d).stringof.ptr, d); // outer
+					inEponymous = true;
+					d.onemember.accept(this);
+					return;
+				}
 
 			static if (is(typeof(d) == AST.Import)
 				|| is(typeof(d) == AST.CompoundStatement)
@@ -92,7 +114,8 @@ extern(C++) final class UndocumentedLinter : SemanticTimeTransitiveVisitor
 					if (!d.loc.isValid())
 						return;
 
-					visitDeclaration(typeof(d).stringof.ptr, d);
+					if (!ignoreCurrent)
+						visitDeclaration(typeof(d).stringof.ptr, d);
 				}
 
 				static if (is(typeof(d) == AST.AliasDeclaration))
