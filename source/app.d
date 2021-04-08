@@ -58,6 +58,8 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 				// Needed e.g. for __xpostblit
 				if (d.ident && d.ident.toString().startsWith("__"))
 					return;
+				if (!d.loc.isValid())
+					return;
 
 				static if (is(typeof(d) == AST.VisibilityDeclaration))
 				{
