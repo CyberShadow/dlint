@@ -82,8 +82,9 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 					// treat variable starting with "_" as private.
 					// (This will also include compiler-generated
 					// symbols, such as __xpostblit).
-					if (d.ident && d.ident.toString().startsWith("_"))
-						return;
+					static if (!is(typeof(d) == AST.CtorDeclaration))
+						if (d.ident && d.ident.toString().startsWith("_"))
+							return;
 
 					// Skip compiler-generated declarations
 					static if (is(typeof(d.generated) : bool))

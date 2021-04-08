@@ -7,3 +7,5 @@ undocumented/t01_basic.d(36,7): Undocumented public declaration: FuncDeclaration
 undocumented/t01_basic.d(41,1): Undocumented public declaration: StructDeclaration `bad5`
 undocumented/t01_basic.d(43,7): Undocumented public declaration: FuncDeclaration `bad51`
 undocumented/t01_basic.d(47,7): Undocumented public declaration: FuncDeclaration `bad52`
+undocumented/t01_basic.d(50,1): Undocumented public declaration: ClassDeclaration `bad6`
+undocumented/t01_basic.d(52,2): Undocumented public declaration: CtorDeclaration `this`

@@ -46,3 +46,8 @@ private:
 public:
 	void bad52() {}
 }
+
+class bad6
+{
+	this(int) {}
+}
