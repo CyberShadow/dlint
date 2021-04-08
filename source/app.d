@@ -50,6 +50,14 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 					d.visibility.kind < AST.Visibility.Kind.public_)
 					return;
 
+				// Skip compiler-generated declarations
+				static if (is(typeof(d.generated) : bool))
+					if (d.generated)
+						return;
+				// Needed e.g. for __xpostblit
+				if (d.ident && d.ident.toString().startsWith("__"))
+					return;
+
 				static if (is(typeof(d) == AST.VisibilityDeclaration))
 				{
 					// Has visibility, but cannot be documented
