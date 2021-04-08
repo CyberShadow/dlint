@@ -12,3 +12,9 @@ template good5()
 {
 	int good5() {}
 }
+
+deprecated
+template good6()
+{
+	int good6() {}
+}

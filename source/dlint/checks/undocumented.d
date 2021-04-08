@@ -34,6 +34,9 @@ extern(C++) final class UndocumentedLinter : SemanticTimeTransitiveVisitor
 			static if (is(typeof(d.storage_class)))
 				if (d.storage_class & AST.STC.deprecated_)
 					return;
+			static if (is(typeof(d.stc)))
+				if (d.stc & AST.STC.deprecated_)
+					return;
 
 			static if (is(typeof(d) == AST.TemplateDeclaration))
 				if (d.onemember)
