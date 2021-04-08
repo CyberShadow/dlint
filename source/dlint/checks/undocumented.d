@@ -24,6 +24,16 @@ extern(C++) final class UndocumentedLinter : SemanticTimeTransitiveVisitor
 		{
 			debug(dlint) { depth++; scope(success) depth--; }
 
+			void log()(string s)
+			{
+				debug(dlint) printf("%*s# %s: %.*s %s %s\n",
+					depth, "".ptr,
+					d.loc.toChars(),
+					cast(int)s.length, s.ptr,
+					typeof(d).stringof.ptr,
+					d.toChars());
+			}
+
 			bool ignoreCurrent;
 			if (inEponymous)
 			{
@@ -31,21 +41,19 @@ extern(C++) final class UndocumentedLinter : SemanticTimeTransitiveVisitor
 				ignoreCurrent = true;
 			}
 
-			static if (is(typeof(d.storage_class)))
-				if (d.storage_class & AST.STC.deprecated_)
-					return;
-			static if (is(typeof(d.stc)))
-				if (d.stc & AST.STC.deprecated_)
-					return;
+			static if (is(typeof(d) : AST.Dsymbol))
+				if (d.isDeprecated())
+					return log("Skipping deprecated");
 
 			static if (is(typeof(d) == AST.TemplateDeclaration))
 				if (d.onemember)
 				{
-					debug(dlint) printf("%*s# %s: Diving inside eponymous %s %s\n",
-						depth, "".ptr,
-						d.loc.toChars(),
-						typeof(d).stringof.ptr,
-						d.toChars());
+					/// DMD moves the "deprecated" attribute on the
+					/// inner symbol for eponymous templates.
+					if (d.onemember.isDeprecated())
+						return log("Skipping deprecated eponymous");
+
+					log("Diving inside eponymous");
 					if (!checkThing(d)) // outer
 						return;
 					inEponymous = true;

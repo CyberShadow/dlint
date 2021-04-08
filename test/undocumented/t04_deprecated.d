@@ -18,3 +18,7 @@ template good6()
 {
 	int good6() {}
 }
+
+deprecated void good7()()
+{
+}
