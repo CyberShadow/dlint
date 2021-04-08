@@ -59,8 +59,9 @@ extern(C++) final class UndocumentedLinter : SemanticTimeTransitiveVisitor
 						return log("Skipping deprecated eponymous");
 
 					log("Diving inside eponymous");
-					if (!checkThing(d)) // outer
-						return;
+					if (!ignoreCurrent)
+						if (!checkThing(d)) // outer
+							return;
 					inEponymous = true;
 					d.onemember.accept(this);
 					return;

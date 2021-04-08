@@ -18,3 +18,10 @@ struct good1(T)
 }
 
 private void good2()() {}
+
+
+/// documented!
+template good1()
+{
+	void good1()() {}
+}
