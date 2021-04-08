@@ -162,10 +162,19 @@ void main(string[] args)
 	{
 		if (arg.startsWith("-"))
 		{
-			if (arg.startsWith("-I"))
-				addImport(arg[2 .. $]);
-			else
-				throw new Exception("Unknown switch: " ~ arg);
+			switch (arg)
+			{
+				case "-unittest":
+				case "-d":
+				case "-dw":
+				case "-de":
+					break; // ignore
+				default:
+					if (arg.startsWith("-I"))
+						addImport(arg[2 .. $]);
+					else
+						throw new Exception("Unknown switch: " ~ arg);
+			}
 			continue;
 		}
 
