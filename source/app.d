@@ -28,20 +28,50 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 			// AggregateDeclaration are unrelated types which both
 			// have a `visibility` field (and their common ancestor
 			// does not have a `visibility` field).
+			static if (is(typeof(d) == AST.Import))
+			{
+				// Does not need to be documented or traversed
+				debug(dlint) printf("# %s: Skipping %s %s\n",
+					d.loc.toChars(),
+					typeof(d).stringof.ptr,
+					d.toChars());
+			}
+			else
+			static if (is(typeof(d) == AST.VisibilityDeclaration))
+			{
+				// Has visibility, but cannot be documented
+				debug(dlint) printf("# %s: Silently descending into %s %s\n",
+					d.loc.toChars(),
+					typeof(d).stringof.ptr,
+					d.toChars());
+
+				super.visit(d);
+			}
+			else
 			static if (is(typeof(d.visibility) : AST.Visibility))
 			{
+				// Should be documented, and traversed
 				debug(dlint) printf("%s %s %d\n", typeof(d).stringof.ptr, d.toChars(), d.visibility.kind);
 				if (d.visibility.kind != AST.Visibility.Kind.undefined &&
 					d.visibility.kind < AST.Visibility.Kind.public_)
 					return;
 
 				visitDeclaration(typeof(d).stringof.ptr, d);
+				super.visit(d);
 			}
 			else
 			{
-				debug(dlint) printf("%s %s\n", typeof(d).stringof.ptr, d.toChars());
+				const(char)* loc;
+				static if (is(typeof(d.loc)))
+					loc = d.loc.toChars();
+				else
+					loc = "-";
+				debug(dlint) printf("# %s: Visiting unknown %s %s\n",
+					loc,
+					typeof(d).stringof.ptr,
+					d.toChars());
+				super.visit(d);
 			}
-			super.visit(d);
 		}
 
 	void visitDeclaration(const(char)* type, Dsymbol d)
