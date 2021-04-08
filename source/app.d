@@ -30,7 +30,7 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 			// does not have a `visibility` field).
 			static if (is(typeof(d.visibility) : AST.Visibility))
 			{
-				// printf("%s %s %d\n", typeof(d).stringof.ptr, d.toChars(), d.visibility.kind);
+				debug(dlint) printf("%s %s %d\n", typeof(d).stringof.ptr, d.toChars(), d.visibility.kind);
 				if (d.visibility.kind != AST.Visibility.Kind.undefined &&
 					d.visibility.kind < AST.Visibility.Kind.public_)
 					return;
@@ -39,7 +39,7 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 			}
 			else
 			{
-				// printf("%s %s\n", typeof(d).stringof.ptr, d.toChars());
+				debug(dlint) printf("%s %s\n", typeof(d).stringof.ptr, d.toChars());
 			}
 			super.visit(d);
 		}
