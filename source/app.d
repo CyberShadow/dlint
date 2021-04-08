@@ -18,12 +18,15 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 	alias visit = typeof(super).visit;
 
 	alias AST = ASTCodegen;
+	debug(dlint) int depth;
 
 	// We do this because the TransitiveVisitor does not forward
 	// visit(FooDeclaration) to visit(Declaration)
 	static foreach (overload; __traits(getOverloads, Visitor, "visit"))
 		override void visit(Parameters!overload[0] d)
 		{
+			debug(dlint) { depth++; scope(success) depth--; }
+
 			// We do this because e.g. Declaration and
 			// AggregateDeclaration are unrelated types which both
 			// have a `visibility` field (and their common ancestor
@@ -32,7 +35,8 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 				|| is(typeof(d) == AST.CompoundStatement))
 			{
 				// Does not need to be documented or traversed
-				debug(dlint) printf("# %s: Skipping %s %s\n",
+				debug(dlint) printf("%*s# %s: Skipping %s %s\n",
+					depth, "".ptr,
 					d.loc.toChars(),
 					typeof(d).stringof.ptr,
 					d.toChars());
@@ -41,7 +45,8 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 			static if (is(typeof(d.visibility) : AST.Visibility))
 			{
 				// Should be documented, and traversed
-				debug(dlint) printf("# %s: %s %s %d\n",
+				debug(dlint) printf("%*s# %s: %s %s %d\n",
+					depth, "".ptr,
 					d.loc.toChars(),
 					typeof(d).stringof.ptr,
 					d.toChars(),
@@ -61,7 +66,8 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 				static if (is(typeof(d) == AST.VisibilityDeclaration))
 				{
 					// Has visibility, but cannot be documented
-					debug(dlint) printf("# (skipping)\n");
+					debug(dlint) printf("%*s# (skipping)\n",
+						depth, "".ptr);
 				}
 				else
 					visitDeclaration(typeof(d).stringof.ptr, d);
@@ -74,7 +80,8 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 					loc = d.loc.toChars();
 				else
 					loc = "-";
-				debug(dlint) printf("# %s: Visiting unknown %s %s\n",
+				debug(dlint) printf("%*s# %s: Visiting unknown %s %s\n",
+					depth, "".ptr,
 					loc,
 					typeof(d).stringof.ptr,
 					d.toChars());
