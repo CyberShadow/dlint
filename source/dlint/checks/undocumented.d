@@ -26,9 +26,14 @@ extern(C++) final class UndocumentedLinter : SemanticTimeTransitiveVisitor
 
 			void log()(string s)
 			{
+				const(char)* loc;
+				static if (is(typeof(d.loc)))
+					loc = d.loc.toChars();
+				else
+					loc = "-";
 				debug(dlint) printf("%*s# %s: %.*s %s %s\n",
 					depth, "".ptr,
-					d.loc.toChars(),
+					loc,
 					cast(int)s.length, s.ptr,
 					typeof(d).stringof.ptr,
 					d.toChars());
@@ -68,11 +73,7 @@ extern(C++) final class UndocumentedLinter : SemanticTimeTransitiveVisitor
 				|| is(typeof(d) == AST.DeprecatedDeclaration))
 			{
 				// Does not need to be documented or traversed
-				debug(dlint) printf("%*s# %s: Skipping %s %s\n",
-					depth, "".ptr,
-					d.loc.toChars(),
-					typeof(d).stringof.ptr,
-					d.toChars());
+				debug(dlint) log("Skipping");
 			}
 			else
 			// We do this because e.g. Declaration and
@@ -130,16 +131,7 @@ extern(C++) final class UndocumentedLinter : SemanticTimeTransitiveVisitor
 			}
 			else
 			{
-				const(char)* loc;
-				static if (is(typeof(d.loc)))
-					loc = d.loc.toChars();
-				else
-					loc = "-";
-				debug(dlint) printf("%*s# %s: Visiting unknown %s %s\n",
-					depth, "".ptr,
-					loc,
-					typeof(d).stringof.ptr,
-					d.toChars());
+				log("Visiting unknown");
 				super.visit(d);
 			}
 		}
