@@ -6,3 +6,9 @@ deprecated struct good3
 {
 	void good4() {}
 }
+
+deprecated("foo")
+template good5()
+{
+	int good5() {}
+}
