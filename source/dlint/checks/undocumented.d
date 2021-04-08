@@ -43,7 +43,8 @@ extern(C++) final class UndocumentedLinter : SemanticTimeTransitiveVisitor
 						d.loc.toChars(),
 						typeof(d).stringof.ptr,
 						d.toChars());
-					visitDeclaration(typeof(d).stringof.ptr, d); // outer
+					if (!checkThing(d)) // outer
+						return;
 					inEponymous = true;
 					d.onemember.accept(this);
 					return;
@@ -92,30 +93,9 @@ extern(C++) final class UndocumentedLinter : SemanticTimeTransitiveVisitor
 						d.toChars(),
 						d.visibility.kind);
 
-					if (visibility < AST.Visibility.Kind.public_)
-						return;
-
-					// Some declarations need to be public even though
-					// they should not be (e.g. if they are exposed
-					// through public aliases).  Apply the same
-					// convention as seen in many other languages
-					// without visibility as a language feature, and
-					// treat variable starting with "_" as private.
-					// (This will also include compiler-generated
-					// symbols, such as __xpostblit).
-					static if (!is(typeof(d) == AST.CtorDeclaration))
-						if (d.ident && d.ident.toString().startsWith("_"))
-							return;
-
-					// Skip compiler-generated declarations
-					static if (is(typeof(d.generated) : bool))
-						if (d.generated)
-							return;
-					if (!d.loc.isValid())
-						return;
-
 					if (!ignoreCurrent)
-						visitDeclaration(typeof(d).stringof.ptr, d);
+						if (!checkThing(d))
+							return;
 				}
 
 				static if (is(typeof(d) == AST.AliasDeclaration))
@@ -152,7 +132,35 @@ extern(C++) final class UndocumentedLinter : SemanticTimeTransitiveVisitor
 			}
 		}
 
-	void visitDeclaration(const(char)* type, AST.Dsymbol d)
+	bool checkThing(T)(T d)
+	{
+		if (currentVisibility < AST.Visibility.Kind.public_)
+			return false;
+
+		// Some declarations need to be public even though
+		// they should not be (e.g. if they are exposed
+		// through public aliases).  Apply the same
+		// convention as seen in many other languages
+		// without visibility as a language feature, and
+		// treat variable starting with "_" as private.
+		// (This will also include compiler-generated
+		// symbols, such as __xpostblit).
+		static if (!is(typeof(d) == AST.CtorDeclaration))
+			if (d.ident && d.ident.toString().startsWith("_"))
+				return false;
+
+		// Skip compiler-generated declarations
+		static if (is(typeof(d.generated) : bool))
+			if (d.generated)
+				return false;
+		if (!d.loc.isValid())
+			return false;
+
+		checkDsymbol(typeof(d).stringof.ptr, d);
+		return true;
+	}
+
+	void checkDsymbol(const(char)* type, AST.Dsymbol d)
 	{
 		if (d.comment)
 			return;

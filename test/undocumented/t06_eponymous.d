@@ -16,3 +16,5 @@ template Bad1()
 struct good1(T)
 {
 }
+
+private void good2()() {}
