@@ -15,13 +15,13 @@ import core.stdc.stdio;
 
 extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 {
-    alias visit = typeof(super).visit;
+	alias visit = typeof(super).visit;
 
-    alias AST = ASTCodegen;
+	alias AST = ASTCodegen;
 
-    // We do this because the TransitiveVisitor does not forward
-    // visit(FooDeclaration) to visit(Declaration)
-    static foreach (overload; __traits(getOverloads, Visitor, "visit"))
+	// We do this because the TransitiveVisitor does not forward
+	// visit(FooDeclaration) to visit(Declaration)
+	static foreach (overload; __traits(getOverloads, Visitor, "visit"))
 		override void visit(Parameters!overload[0] d)
 		{
 			// We do this because e.g. Declaration and
@@ -44,15 +44,15 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 			super.visit(d);
 		}
 
-    void visitDeclaration(Dsymbol d)
-    {
-        if (d.comment)
-            return;
+	void visitDeclaration(Dsymbol d)
+	{
+		if (d.comment)
+			return;
 
-        printf("%s: Undocumented public declaration: %s %s\n",
-            d.loc.toChars(),
-            typeof(d).stringof.ptr, d.toChars());
-    }
+		printf("%s: Undocumented public declaration: %s %s\n",
+			d.loc.toChars(),
+			typeof(d).stringof.ptr, d.toChars());
+	}
 }
 
 import dmd.root.filename;
@@ -61,57 +61,57 @@ import std.algorithm.searching;
 import std.typecons;
 
 Tuple!(Module, "module_", Diagnostics, "diagnostics") parseModule(AST = ASTCodegen)(
-    const(char)[] fileName,
-    const(char)[] code = null)
+	const(char)[] fileName,
+	const(char)[] code = null)
 {
-    import dmd.root.file : File, FileBuffer;
+	import dmd.root.file : File, FileBuffer;
 
-    import dmd.globals : Loc, global;
-    import dmd.parse : Parser;
-    import dmd.identifier : Identifier;
-    import dmd.tokens : TOK;
+	import dmd.globals : Loc, global;
+	import dmd.parse : Parser;
+	import dmd.identifier : Identifier;
+	import dmd.tokens : TOK;
 
-    import std.path : baseName, stripExtension;
-    import std.string : toStringz;
-    import std.typecons : tuple;
+	import std.path : baseName, stripExtension;
+	import std.string : toStringz;
+	import std.typecons : tuple;
 
-    auto id = Identifier.idPool(fileName.baseName.stripExtension);
-    auto m = new Module(fileName, id, 0, 0);
+	auto id = Identifier.idPool(fileName.baseName.stripExtension);
+	auto m = new Module(fileName, id, 0, 0);
 	m.docfile = FileName("/dev/null");
 
-    if (code is null)
-        m.read(Loc.initial);
-    else
-    {
-        File.ReadResult readResult = {
-            success: true,
-            buffer: FileBuffer(cast(ubyte[]) code.dup ~ '\0')
-        };
+	if (code is null)
+		m.read(Loc.initial);
+	else
+	{
+		File.ReadResult readResult = {
+			success: true,
+			buffer: FileBuffer(cast(ubyte[]) code.dup ~ '\0')
+		};
 
-        m.loadSourceBuffer(Loc.initial, readResult);
-    }
+		m.loadSourceBuffer(Loc.initial, readResult);
+	}
 
-    m.parseModule!AST();
+	m.parseModule!AST();
 
-    Diagnostics diagnostics = {
-        errors: global.errors,
-        warnings: global.warnings
-    };
+	Diagnostics diagnostics = {
+		errors: global.errors,
+		warnings: global.warnings
+	};
 
-    return typeof(return)(m, diagnostics);
+	return typeof(return)(m, diagnostics);
 }
 
 void main(string[] args)
 {
-    initDMD;
+	initDMD;
 
-    import std.algorithm : each;
-    findImportPaths.each!addImport;
+	import std.algorithm : each;
+	findImportPaths.each!addImport;
 
-    import std.file;
+	import std.file;
 
-    foreach (arg; args[1..$])
-    {
+	foreach (arg; args[1..$])
+	{
 		if (arg.startsWith("-"))
 		{
 			if (arg.startsWith("-I"))
@@ -132,5 +132,5 @@ void main(string[] args)
 		t.module_.fullSemantic;
 		auto linter = new Linter;
 		t.module_.accept(linter);
-    }
+	}
 }
