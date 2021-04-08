@@ -6,6 +6,7 @@ import core.stdc.stdio;
 import std.algorithm.searching : startsWith;
 
 import dmd.astcodegen;
+import dmd.globals;
 import dmd.frontend;
 import dmd.visitor;
 
@@ -150,6 +151,7 @@ Tuple!(Module, "module_", Diagnostics, "diagnostics") parseModule(AST = ASTCodeg
 void main(string[] args)
 {
 	initDMD;
+	global.params.showColumns = true;
 
 	import std.algorithm : each;
 	findImportPaths.each!addImport;
