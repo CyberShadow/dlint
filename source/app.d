@@ -1,17 +1,13 @@
 module dlint.app;
 
-import dmd.frontend;
-
-import dmd.permissivevisitor;
-import dmd.transitivevisitor;
-
-import dmd.visitor;
-import dmd.dsymbol;
-import dmd.declaration;
-import dmd.astcodegen;
-
-import core.internal.traits;
+import core.internal.traits : Parameters;
 import core.stdc.stdio;
+
+import std.algorithm.searching : startsWith;
+
+import dmd.astcodegen;
+import dmd.frontend;
+import dmd.visitor;
 
 extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 {
@@ -89,7 +85,7 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 			}
 		}
 
-	void visitDeclaration(const(char)* type, Dsymbol d)
+	void visitDeclaration(const(char)* type, AST.Dsymbol d)
 	{
 		if (d.comment)
 			return;
@@ -100,16 +96,15 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 	}
 }
 
-import dmd.root.filename;
-import dmd.dmodule;
-import std.algorithm.searching;
-import std.typecons;
+import std.typecons : Tuple;
+import dmd.dmodule : Module;
 
 Tuple!(Module, "module_", Diagnostics, "diagnostics") parseModule(AST = ASTCodegen)(
 	const(char)[] fileName,
 	const(char)[] code = null)
 {
 	import dmd.root.file : File, FileBuffer;
+	import dmd.root.filename : FileName;
 
 	import dmd.globals : Loc, global;
 	import dmd.parse : Parser;
