@@ -15,6 +15,7 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 
 	alias AST = ASTCodegen;
 	debug(dlint) int depth;
+	AST.Visibility.Kind currentVisibility = AST.Visibility.Kind.public_;
 
 	// We do this because the TransitiveVisitor does not forward
 	// visit(FooDeclaration) to visit(Declaration)
@@ -41,35 +42,50 @@ extern(C++) final class Linter : SemanticTimeTransitiveVisitor
 			// does not have a `visibility` field).
 			static if (is(typeof(d.visibility) : AST.Visibility))
 			{
-				// Should be documented, and traversed
-				debug(dlint) printf("%*s# %s: %s %s %d\n",
-					depth, "".ptr,
-					d.loc.toChars(),
-					typeof(d).stringof.ptr,
-					d.toChars(),
-					d.visibility.kind);
-				if (d.visibility.kind != AST.Visibility.Kind.undefined &&
-					d.visibility.kind < AST.Visibility.Kind.public_)
-					return;
-
-				// Skip compiler-generated declarations
-				static if (is(typeof(d.generated) : bool))
-					if (d.generated)
-						return;
-				// Needed e.g. for __xpostblit
-				if (d.ident && d.ident.toString().startsWith("__"))
-					return;
-				if (!d.loc.isValid())
-					return;
+				auto visibility = d.visibility.kind;
+				if (visibility == AST.Visibility.Kind.undefined)
+					visibility = currentVisibility;
 
 				static if (is(typeof(d) == AST.VisibilityDeclaration))
 				{
-					// Has visibility, but cannot be documented
-					debug(dlint) printf("%*s# (skipping)\n",
-						depth, "".ptr);
+					// Has visibility, but cannot be documented;
+					// may contain public members
+					debug(dlint) printf("%*s# %s: Silently descending into %s %s\n",
+						depth, "".ptr,
+						d.loc.toChars(),
+						typeof(d).stringof.ptr,
+						d.toChars());
 				}
 				else
+				{
+					// Should be documented, and traversed
+					debug(dlint) printf("%*s# %s: %s %s %d\n",
+						depth, "".ptr,
+						d.loc.toChars(),
+						typeof(d).stringof.ptr,
+						d.toChars(),
+						d.visibility.kind);
+
+					if (visibility < AST.Visibility.Kind.public_)
+						return;
+
+					// Skip compiler-generated declarations
+					static if (is(typeof(d.generated) : bool))
+						if (d.generated)
+							return;
+					// Needed e.g. for __xpostblit
+					if (d.ident && d.ident.toString().startsWith("__"))
+						return;
+					if (!d.loc.isValid())
+						return;
+
 					visitDeclaration(typeof(d).stringof.ptr, d);
+				}
+
+				auto lastVisibility = currentVisibility;
+				currentVisibility = visibility;
+				scope(success) currentVisibility = lastVisibility;
+
 				super.visit(d);
 			}
 			else

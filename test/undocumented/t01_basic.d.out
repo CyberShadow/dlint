@@ -4,3 +4,6 @@ undocumented/t01_basic.d(17): Undocumented public declaration: FuncDeclaration `
 undocumented/t01_basic.d(29): Undocumented public declaration: FuncDeclaration `bad3`
 undocumented/t01_basic.d(34): Undocumented public declaration: TemplateDeclaration `bad4(T)`
 undocumented/t01_basic.d(36): Undocumented public declaration: FuncDeclaration `bad41`
+undocumented/t01_basic.d(41): Undocumented public declaration: StructDeclaration `bad5`
+undocumented/t01_basic.d(43): Undocumented public declaration: FuncDeclaration `bad51`
+undocumented/t01_basic.d(47): Undocumented public declaration: FuncDeclaration `bad52`

@@ -38,3 +38,11 @@ private:
 	void good42() {}
 }
 
+struct bad5
+{
+	void bad51() {}
+private:
+	void good52() {}
+public:
+	void bad52() {}
+}
