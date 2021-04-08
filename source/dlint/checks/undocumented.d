@@ -46,19 +46,19 @@ extern(C++) final class UndocumentedLinter : SemanticTimeTransitiveVisitor
 			// does not have a `visibility` field).
 			static if (is(typeof(d.visibility) : AST.Visibility))
 			{
-				auto visibility = d.visibility.kind;
-				if (visibility == AST.Visibility.Kind.undefined)
-					visibility = currentVisibility;
+				auto visibility = currentVisibility;
 
 				static if (is(typeof(d) == AST.VisibilityDeclaration))
 				{
 					// Has visibility, but cannot be documented;
 					// may contain public members
-					debug(dlint) printf("%*s# %s: Silently descending into %s %s\n",
+					debug(dlint) printf("%*s# %s: Silently descending into %s %s %d\n",
 						depth, "".ptr,
 						d.loc.toChars(),
 						typeof(d).stringof.ptr,
-						d.toChars());
+						d.toChars(),
+						d.visibility.kind);
+					visibility = d.visibility.kind;
 				}
 				else
 				{
