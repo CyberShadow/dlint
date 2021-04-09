@@ -46,16 +46,15 @@ extern(C++) final class UndocumentedLinter : SemanticTimeTransitiveVisitor
 				ignoreCurrent = true;
 			}
 
-			static if (is(typeof(d) : AST.Dsymbol))
-				if (d.isDeprecated())
-					return log("Skipping deprecated");
+			if (isDeprecated(d))
+				return log("Skipping deprecated");
 
 			static if (is(typeof(d) == AST.TemplateDeclaration))
 				if (d.onemember)
 				{
 					/// DMD moves the "deprecated" attribute on the
 					/// inner symbol for eponymous templates.
-					if (d.onemember.isDeprecated())
+					if (isDeprecated(d.onemember))
 						return log("Skipping deprecated eponymous");
 
 					log("Diving inside eponymous");
@@ -136,6 +135,20 @@ extern(C++) final class UndocumentedLinter : SemanticTimeTransitiveVisitor
 				super.visit(d);
 			}
 		}
+
+	bool isDeprecated(T)(T d)
+	{
+		static if (is(typeof(d.storage_class)))
+			if (d.storage_class & AST.STC.deprecated_)
+				return true;
+		static if (is(typeof(d.stc)))
+			if (d.stc & AST.STC.deprecated_)
+				return true;
+		static if (is(typeof(d) : AST.Dsymbol))
+			if (d.isDeprecated())
+				return true;
+		return false;
+	}
 
 	bool checkThing(T)(T d)
 	{

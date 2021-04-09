@@ -22,3 +22,9 @@ template good6()
 deprecated void good7()()
 {
 }
+
+static if (false)
+deprecated struct Good8
+{
+	int good81;
+}
